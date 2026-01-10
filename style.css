@@ -1,0 +1,210 @@
+* {
+  box-sizing: border-box;
+  font-family: "Times New Roman", serif;
+
+}
+
+
+body {
+  margin: 0;
+  padding: 30px;
+  background: #eef1f5;
+  font-family: Arial, sans-serif;
+  color: #111;
+  background-image: url("backgorund.png");
+ 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;;
+  background
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6); /* adjust opacity here */
+  z-index: -1;
+}
+
+h1 {
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  gap: 24px;
+  max-width: 1200px;
+  margin: auto;
+  align-items: flex-start;
+}
+
+.form-section {
+  width: 50%;
+  background: white;
+  padding: 20px;
+  border: solid black 1px;
+  border-radius: 6px;
+}
+.preview-section {
+  width: 55%;
+  background: #ffffff;
+  padding: 30px;
+  border: solid black 1px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #1e4ed8;
+}
+
+
+#resume-preview {
+  border: 1px solid #ccc;
+  padding: 25px;
+}
+
+/* Resume styling */
+.header {
+  text-align: center;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.section {
+  margin-top: 15px;
+}
+
+.section h3 {
+  font-size: 14px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 5px;
+}
+
+.section p, li {
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+#preview-experience div {
+  margin-bottom: 8px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 14px;
+  display: block;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+#add-skill,
+#add-experience {
+  background: #111;
+}
+
+#add-skill:hover,
+#add-experience:hover {
+  background: #333;
+}
+
+.resume-header {
+  border-bottom: 2px solid #000;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.resume-header h2 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+
+.resume-header p {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+.resume-body h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000;
+  padding-bottom: 4px;
+  margin-top: 18px;
+}
+.resume-body p,
+.resume-body li {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+ul {
+  padding-left: 18px;
+}
+#preview-summary,
+#preview-education,
+#preview-experience p {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.preview-section::after {
+  content: "Live Resume Preview";
+  display: block;
+  text-align: right;
+  font-size: 11px;
+  color: #666;
+  margin-top: 10px;
+}
+.resume-body h3 {
+  margin-top: 24px;
+}
+
+.resume-body p,
+.resume-body ul,
+#preview-experience {
+  margin-top: 8px;
+}
+
+.resume-body h3 {
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
