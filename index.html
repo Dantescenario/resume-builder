@@ -1,86 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Resume Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Builder | Create Your Professional Resume</title>
+  <meta name="description"
+    content="Build a stunning professional resume with our easy-to-use resume builder. Live preview and instant PDF download.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<h1>Resume Builder</h1>
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
 
-<div class="container">
-
-  <!-- FORM -->
-  <div class="form-section">
-    <label>Name</label>
-    <input id="name">
-
-    <label>Email</label>
-    <input id="email">
-
-    <label>Phone</label>
-    <input id="phone">
-
-    <label>Summary</label>
-    <textarea id="summary"></textarea>
-
-    <label>Skills</label>
-    <input id="skill-input">
-    <button id="add-skill">Add Skill</button>
-
-    <label>Education</label>
-    <textarea id="education"></textarea>
-
-    <h3>Experience</h3>
-    <input id="exp-title" placeholder="Job Title">
-    <input id="exp-company" placeholder="Company">
-    <input id="exp-duration" placeholder="Duration">
-    <textarea id="exp-desc" placeholder="Description"></textarea>
-    <button id="add-experience">Add Experience</button>
-
-    <button id="save-btn">Save</button>
-    <button id="download-btn">Download PDF</button>
-  </div>
-
-  <!-- PREVIEW -->
-  <div class="preview-section">
-    <div id="resume-preview">
-
-      <div class="header">
-        <h2 id="preview-name">Your Name</h2>
-        <p>
-          <span id="preview-email">email@example.com</span> |
-          <span id="preview-phone">+91 XXXXXXXX</span>
-        </p>
-      </div>
-
-      <div class="section">
-        <h3>Summary</h3>
-        <p id="preview-summary"></p>
-      </div>
-
-      <div class="section">
-        <h3>Skills</h3>
-        <ul id="preview-skills"></ul>
-      </div>
-
-      <div class="section">
-        <h3>Experience</h3>
-        <div id="preview-experience"></div>
-      </div>
-
-      <div class="section">
-        <h3>Education</h3>
-        <p id="preview-education"></p>
-      </div>
-
+  <header class="app-header">
+    <div class="logo">
+      <i class="fas fa-file-alt"></i>
+      <span>Resume Builder</span>
     </div>
-  </div>
+    <p class="tagline">Create your professional resume in minutes</p>
+  </header>
 
-</div>
+  <main class="container">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="script.js"></script>
+    <!-- FORM SECTION -->
+    <section class="form-section glass-card">
+      <div class="section-header">
+        <i class="fas fa-user-edit"></i>
+        <h2>Your Details</h2>
+      </div>
+
+      <div class="form-group">
+        <label for="name"><i class="fas fa-user"></i> Full Name</label>
+        <input type="text" id="name" placeholder="John Doe">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="email" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label for="phone"><i class="fas fa-phone"></i> Phone</label>
+          <input type="tel" id="phone" placeholder="+91 XXXXXXXXXX">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="summary"><i class="fas fa-align-left"></i> Professional Summary</label>
+        <textarea id="summary" placeholder="Write a compelling summary of your professional background..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="skill-input"><i class="fas fa-tools"></i> Skills</label>
+        <div class="input-with-button">
+          <input type="text" id="skill-input" placeholder="Add a skill (e.g., JavaScript)">
+          <button id="add-skill" class="btn-secondary"><i class="fas fa-plus"></i></button>
+        </div>
+        <div id="skills-container" class="skills-tags"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="education"><i class="fas fa-graduation-cap"></i> Education</label>
+        <textarea id="education" placeholder="B.Tech Computer Science&#10;XYZ University, 2020-2024"></textarea>
+      </div>
+
+      <div class="experience-section">
+        <div class="section-header">
+          <i class="fas fa-briefcase"></i>
+          <h3>Work Experience</h3>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="exp-title" placeholder="Job Title (e.g., Software Engineer)">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <input type="text" id="exp-company" placeholder="Company Name">
+          </div>
+          <div class="form-group">
+            <input type="text" id="exp-duration" placeholder="Duration (e.g., 2022-2024)">
+          </div>
+        </div>
+        <div class="form-group">
+          <textarea id="exp-desc" placeholder="Describe your responsibilities and achievements..."></textarea>
+        </div>
+        <button id="add-experience" class="btn-secondary btn-full">
+          <i class="fas fa-plus-circle"></i> Add Experience
+        </button>
+      </div>
+
+      <div class="action-buttons">
+        <button id="save-btn" class="btn-primary">
+          <i class="fas fa-save"></i> Save Resume
+        </button>
+        <button id="download-btn" class="btn-gradient">
+          <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+      </div>
+    </section>
+
+    <!-- PREVIEW SECTION -->
+    <section class="preview-section glass-card">
+      <div class="preview-header">
+        <i class="fas fa-eye"></i>
+        <span>Live Preview</span>
+      </div>
+
+      <!-- Template Selector -->
+      <div class="template-selector">
+        <p class="template-label"><i class="fas fa-palette"></i> Choose Template</p>
+        <div class="template-options">
+          <button class="template-option active" data-template="classic">
+            <div class="template-preview template-preview-classic">
+              <div class="tp-header"></div>
+              <div class="tp-line"></div>
+              <div class="tp-line short"></div>
+            </div>
+            <span>Classic</span>
+          </button>
+          <button class="template-option" data-template="modern">
+            <div class="template-preview template-preview-modern">
+              <div class="tp-sidebar"></div>
+              <div class="tp-content">
+                <div class="tp-line"></div>
+                <div class="tp-line short"></div>
+              </div>
+            </div>
+            <span>Modern</span>
+          </button>
+          <button class="template-option" data-template="minimal">
+            <div class="template-preview template-preview-minimal">
+              <div class="tp-header"></div>
+              <div class="tp-line"></div>
+              <div class="tp-line"></div>
+            </div>
+            <span>Minimal</span>
+          </button>
+          <button class="template-option" data-template="creative">
+            <div class="template-preview template-preview-creative">
+              <div class="tp-header"></div>
+              <div class="tp-accent"></div>
+              <div class="tp-line"></div>
+            </div>
+            <span>Creative</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="resume-preview" data-template="classic">
+        <div class="resume-header">
+          <h2 id="preview-name">Your Name</h2>
+          <p class="contact-info">
+            <span id="preview-email">email@example.com</span>
+            <span class="separator">|</span>
+            <span id="preview-phone">+91 XXXXXXXX</span>
+          </p>
+        </div>
+
+        <div class="resume-section">
+          <h3>Summary</h3>
+          <p id="preview-summary">Your professional summary will appear here...</p>
+        </div>
+
+        <div class="resume-section">
+          <h3>Skills</h3>
+          <ul id="preview-skills"></ul>
+        </div>
+
+        <div class="resume-section">
+          <h3>Experience</h3>
+          <div id="preview-experience"></div>
+        </div>
+
+        <div class="resume-section">
+          <h3>Education</h3>
+          <p id="preview-education">Your education details will appear here...</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>Built with <i class="fas fa-heart"></i> for job seekers everywhere</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

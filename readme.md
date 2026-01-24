@@ -1,49 +1,69 @@
-# Professional Resume Builder (HTML/JS)
+# Modern Resume Builder
 
-Create a clean, professional resume instantly with this ready-to-use web application. Perfect for students, job seekers, and professionals who want a modern resume without spending hours formatting.
+A premium, feature-rich web application to build professional resumes in minutes. Featuring a glassmorphism UI, real-time preview, and multiple professional templates.
 
----
+![Resume Builder Preview](Screenshot.png)
 
-## Features
+## ✨ New Features
 
-- **Live Preview**: See your resume update in real-time as you type.  
-- **Add Multiple Skills**: Showcase all your abilities with ease.  
-- **Add Work Experience**: Add multiple job entries with title, company, duration, and description.  
-- **Download as PDF**: Generate a professional-looking resume in PDF format.  
-- **Classic Professional Template**: Elegant and clean design suitable for any industry.  
-- **Customizable Website Background**: Supports background images with adjustable opacity.  
-- **Offline Ready**: No internet connection or login required.  
-- **Local Storage Support**: Save your resume data for later editing.
+- **Modern Glassmorphism UI**: Beautiful, responsive interface with animated gradient backgrounds and glass-effect cards.
+- **4 Professional Templates**:
+  - **Classic**: Formal serif layout for traditional industries.
+  - **Modern**: Clean sans-serif with colored sidebars for tech/creative roles.
+  - **Minimal**: Elegant whitespace-focused design.
+  - **Creative**: Bold colors and unique layouts for artistic portfolios.
+- **Smart PDF Generation**: Downloaded PDFs automatically match your selected template's style, fonts, and colors.
+- **Live Preview**: Real-time updates as you type.
+- **Interactive Form**:
+  - **Skill Tags**: Add/remove skills with ease.
+  - **Experience Management**: Add detailed work history.
+  - **Toast Notifications**: Friendly success/error messages.
+- **Auto-Save**: creative use of LocalStorage preserves your work between visits.
 
----
+## 🚀 How to Use
 
-## Demo
+1. **Clone & Run**:
+   ```bash
+   git clone <repository-url>
+   cd resume-builder
+   npx serve .
+   ```
+   Or simply open `index.html` in your browser.
 
-![Demo Screenshot](screenshot.png)  
+2. **Create Your Resume**:
+   - Fill in your personal details, summary, and education.
+   - Add skills using the tag input (press Enter or click +).
+   - Add work experience entries.
 
+3. **Choose Your Style**:
+   - Click the template thumbnails above the preview to switch styles instantly.
+   - Choose from Classic, Modern, Minimal, or Creative.
 
----
+4. **Download**:
+   - Click **Save Resume** to store content locally.
+   - Click **Download PDF** to get your print-ready resume.
 
-## How to Use
+## 🛠️ Technology Stack
 
-1. Open `index.html` in a browser.
-2. Fill in your **name, email, phone, summary, skills, education, and experience**.
-3. Click **Add Skill** to add skills.
-4. Click **Add Experience** to add job experiences.
-5. Click **Save** to store your data in local storage.
-6. Click **Download PDF** to generate your resume.
+- **HTML5**: Semantic and accessible structure.
+- **CSS3**: Variables, Flexbox/Grid, Glassmorphism, Animations.
+- **JavaScript (ES6+)**: Template logic, DOM manipulation, LocalStorage.
+- **jsPDF**: Client-side PDF generation.
+- **Font Awesome**: Iconography.
+- **Google Fonts**: Inter & Crimson Pro.
 
----
+## 🎨 Customization
 
-## Customization
-
-- **Change Background Image**: Replace `background.jpg` in the folder and edit `style.css`:
+To modify the color schemes, edit the CSS variables in `style.css`:
 
 ```css
-body {
-  background-image: url('background.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.8; /* adjust transparency */
+:root {
+  --primary: #667eea;
+  --accent: #06b6d4;
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
+```
+
+## 📄 License
+
+MIT License - feel free to use and modify for your own projects!
