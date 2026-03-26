@@ -308,15 +308,43 @@ document.getElementById("download-btn").onclick = () => {
   };
 
   const config = templates[currentTemplate] || templates.classic;
-  let y = 15;
+  const pageHeight = 297;
+  const pageWidth = 210;
+  const rightMargin = 8;
+  const bottomMargin = 12;
+  const topMargin = 12;
+  
+  let y = topMargin;
   let leftMargin = 10 + config.sidebarWidth;
-  let contentWidth = 190 - config.sidebarWidth;
+  let contentWidth = pageWidth - leftMargin - rightMargin;
+  let currentPage = 1;
+  let lineHeight = 6.2;
 
   // Draw sidebar for Modern template
   if (config.sidebarWidth > 0) {
     doc.setFillColor(...config.primaryColor);
-    doc.rect(0, 0, config.sidebarWidth, 297, 'F');
+    doc.rect(0, 0, config.sidebarWidth, pageHeight, 'F');
   }
+
+  // Function to add new page with consistent styling
+  const addNewPage = () => {
+    doc.addPage();
+    currentPage++;
+    y = topMargin;
+    
+    // Redraw sidebar on new page
+    if (config.sidebarWidth > 0) {
+      doc.setFillColor(...config.primaryColor);
+      doc.rect(0, 0, config.sidebarWidth, pageHeight, 'F');
+    }
+  };
+
+  // Function to check and handle page break
+  const checkPageBreak = (requiredSpace = 15) => {
+    if (y + requiredSpace > pageHeight - bottomMargin) {
+      addNewPage();
+    }
+  };
 
   // Draw top accent bar for Creative template
   if (currentTemplate === 'creative') {
@@ -335,38 +363,39 @@ document.getElementById("download-btn").onclick = () => {
 
   // Section header function
   const sectionHeader = (title) => {
-    y += 4;
+    checkPageBreak(15);
+    y += 3;
 
     if (currentTemplate === 'creative') {
       // Pill-shaped header for creative
       doc.setFillColor(...config.primaryColor);
       const textWidth = doc.getTextWidth(title) + 10;
-      doc.roundedRect(leftMargin, y - 4, textWidth, 7, 3, 3, 'F');
+      doc.roundedRect(leftMargin, y - 4, textWidth, 9, 3, 3, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFont(config.headerFont, "Bold");
-      doc.setFontSize(9);
-      doc.text(title, leftMargin + 5, y);
-      y += 10;
+      doc.setFontSize(14);
+      doc.text(title, leftMargin + 5, y + 1);
+      y += 12;
       doc.setTextColor(0, 0, 0);
     } else if (currentTemplate === 'minimal') {
       // Subtle header for minimal
       doc.setTextColor(...config.primaryColor);
-      doc.setFont(config.headerFont, "Normal");
-      doc.setFontSize(9);
+      doc.setFont(config.headerFont, "Bold");
+      doc.setFontSize(14);
       doc.text(title, leftMargin, y);
-      y += 8;
+      y += 10;
       doc.setTextColor(0, 0, 0);
     } else if (currentTemplate === 'modern') {
       // Colored header for modern
       doc.setTextColor(...config.primaryColor);
       doc.setFont(config.headerFont, "Bold");
-      doc.setFontSize(10);
+      doc.setFontSize(14);
       doc.text(title, leftMargin, y);
       y += 2;
       doc.setDrawColor(...config.primaryColor);
       doc.setLineWidth(0.8);
-      doc.line(leftMargin, y, leftMargin + 50, y);
-      y += 8;
+      doc.line(leftMargin, y, leftMargin + 55, y);
+      y += 10;
       doc.setTextColor(0, 0, 0);
     } else {
       // Classic header
@@ -377,7 +406,7 @@ document.getElementById("download-btn").onclick = () => {
       y += 2;
       doc.setLineWidth(0.4);
       doc.setDrawColor(0, 0, 0);
-      doc.line(leftMargin, y, 200, y);
+      doc.line(leftMargin, y, leftMargin + 50, y);
       y += 8;
     }
   };
@@ -386,14 +415,14 @@ document.getElementById("download-btn").onclick = () => {
   doc.setFont(config.headerFont, "Bold");
 
   if (currentTemplate === 'creative') {
-    doc.setFontSize(22);
+    doc.setFontSize(26);
     doc.setTextColor(...config.primaryColor);
   } else if (currentTemplate === 'minimal') {
-    doc.setFontSize(24);
+    doc.setFontSize(28);
     doc.setTextColor(0, 0, 0);
     doc.setFont(config.headerFont, "Normal");
   } else if (currentTemplate === 'modern') {
-    doc.setFontSize(20);
+    doc.setFontSize(24);
     doc.setTextColor(...config.primaryColor);
   } else {
     doc.setFontSize(18);
@@ -409,7 +438,7 @@ document.getElementById("download-btn").onclick = () => {
 
   // Header: Email | Phone
   doc.setFont(config.bodyFont, "Normal");
-  doc.setFontSize(10);
+  doc.setFontSize(currentTemplate === 'classic' ? 10 : 12);
   doc.setTextColor(100, 100, 100);
 
   const contactText = `${previewEmail.textContent}  |  ${previewPhone.textContent}`;
@@ -422,17 +451,19 @@ document.getElementById("download-btn").onclick = () => {
   doc.setTextColor(0, 0, 0);
 
   // Summary Section
+  checkPageBreak(20);
   sectionHeader("SUMMARY");
   doc.setFont(config.bodyFont, "Normal");
-  doc.setFontSize(10);
+  doc.setFontSize(currentTemplate === 'classic' ? 10 : 12);
   let summaryLines = doc.splitTextToSize(previewSummary.textContent, contentWidth);
   doc.text(summaryLines, leftMargin, y);
-  y += summaryLines.length * 5 + 8;
+  y += summaryLines.length * lineHeight + 6;
 
   // Skills Section
+  checkPageBreak(20);
   sectionHeader("SKILLS");
   doc.setFont(config.bodyFont, "Normal");
-  doc.setFontSize(10);
+  doc.setFontSize(currentTemplate === 'classic' ? 10 : 12);
 
   if (currentTemplate === 'creative' || currentTemplate === 'modern') {
     // Inline skills with colored text
@@ -440,46 +471,51 @@ document.getElementById("download-btn").onclick = () => {
     const skillText = skills.join('  •  ');
     const skillLines = doc.splitTextToSize(skillText, contentWidth);
     doc.text(skillLines, leftMargin, y);
-    y += skillLines.length * 5 + 8;
+    y += skillLines.length * lineHeight + 6;
     doc.setTextColor(0, 0, 0);
   } else {
     // Bullet list
     skills.forEach(skill => {
+      checkPageBreak(8);
+      doc.setFontSize(10);
       doc.text("•  " + skill, leftMargin, y);
-      y += 5;
+      y += lineHeight + 1;
     });
-    y += 6;
+    y += 4;
   }
 
   // Experience Section
+  checkPageBreak(20);
   sectionHeader("EXPERIENCE");
   experiences.forEach(exp => {
+    checkPageBreak(25);
     if (currentTemplate === 'modern' || currentTemplate === 'creative') {
       doc.setTextColor(...config.primaryColor);
     }
     doc.setFont(config.bodyFont, "Bold");
-    doc.setFontSize(11);
+    doc.setFontSize(currentTemplate === 'classic' ? 11 : 13);
     doc.text(`${exp.title} – ${exp.company}`, leftMargin, y);
-    y += 5;
+    y += 6;
 
     doc.setTextColor(100, 100, 100);
     doc.setFont(config.bodyFont, "Italic");
-    doc.setFontSize(9);
+    doc.setFontSize(currentTemplate === 'classic' ? 9 : 11);
     doc.text(exp.duration, leftMargin, y);
     y += 5;
 
     doc.setTextColor(0, 0, 0);
     doc.setFont(config.bodyFont, "Normal");
-    doc.setFontSize(10);
+    doc.setFontSize(currentTemplate === 'classic' ? 10 : 12);
     let expLines = doc.splitTextToSize(exp.desc, contentWidth);
     doc.text(expLines, leftMargin, y);
-    y += expLines.length * 5 + 8;
+    y += expLines.length * lineHeight + 6;
   });
 
   // Education Section
+  checkPageBreak(20);
   sectionHeader("EDUCATION");
   doc.setFont(config.bodyFont, "Normal");
-  doc.setFontSize(10);
+  doc.setFontSize(currentTemplate === 'classic' ? 10 : 12);
   let eduLines = doc.splitTextToSize(previewEducation.textContent, contentWidth);
   doc.text(eduLines, leftMargin, y);
 

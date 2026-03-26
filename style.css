@@ -491,8 +491,9 @@ button {
 .resume-section p {
   font-size: 0.9375rem;
   line-height: 1.7;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .resume-section ul {
