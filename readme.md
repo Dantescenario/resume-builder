@@ -1,3 +1,6 @@
+LIVE LINK: https://sweet-squirrel-84c68c.netlify.app/
+
+
 # Modern Resume Builder
 
 A premium, feature-rich web application to build professional resumes in minutes. Featuring a glassmorphism UI, real-time preview, and multiple professional templates.
