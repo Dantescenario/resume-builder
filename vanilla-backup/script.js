@@ -524,3 +524,215 @@ document.getElementById("download-btn").onclick = () => {
   showToast('PDF downloaded!');
 };
 
+/**********************
+ * AI REVIEW FEATURE
+ **********************/
+const aiModal = document.getElementById("ai-modal");
+const closeAiModal = document.getElementById("close-ai-modal");
+const aiReviewBtn = document.getElementById("ai-review-btn");
+
+const aiSetupSection = document.getElementById("ai-setup-section");
+const aiLoadingSection = document.getElementById("ai-loading-section");
+const aiResultSection = document.getElementById("ai-result-section");
+
+const apiKeyInput = document.getElementById("gemini-api-key");
+const saveApiKeyBtn = document.getElementById("save-api-key");
+const useHeuristicBtn = document.getElementById("use-heuristic-fallback");
+const aiSettingsBtn = document.getElementById("ai-settings-btn");
+
+let useHeuristicsOnly = false;
+
+// Initialize
+function initAI() {
+  const savedKey = localStorage.getItem("geminiApiKey");
+  if (savedKey) {
+    apiKeyInput.value = savedKey;
+  }
+}
+document.addEventListener('DOMContentLoaded', initAI);
+
+// Open Modal
+aiReviewBtn.addEventListener("click", () => {
+  aiModal.classList.remove("hidden");
+  
+  if (!localStorage.getItem("geminiApiKey") && !useHeuristicsOnly) {
+    showSection(aiSetupSection);
+  } else {
+    startAIReview();
+  }
+});
+
+// Close Modal
+closeAiModal.addEventListener("click", () => {
+  aiModal.classList.add("hidden");
+});
+
+// Save Key
+saveApiKeyBtn.addEventListener("click", () => {
+  const key = apiKeyInput.value.trim();
+  if (key) {
+    localStorage.setItem("geminiApiKey", key);
+    useHeuristicsOnly = false;
+    startAIReview();
+  } else {
+    showToast("Please enter an API key", "error");
+  }
+});
+
+// Use Fallback
+useHeuristicBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  useHeuristicsOnly = true;
+  startAIReview();
+});
+
+// Change Settings
+aiSettingsBtn.addEventListener("click", () => {
+  showSection(aiSetupSection);
+});
+
+function showSection(section) {
+  aiSetupSection.classList.add("hidden");
+  aiLoadingSection.classList.add("hidden");
+  aiResultSection.classList.add("hidden");
+  section.classList.remove("hidden");
+}
+
+async function startAIReview() {
+  showSection(aiLoadingSection);
+
+  // Extract text
+  const resumeText = `
+Name: ${nameInput.value}
+Email: ${emailInput.value}
+Phone: ${phoneInput.value}
+Summary: ${summaryInput.value}
+Education: ${educationInput.value}
+Skills: ${skills.join(", ")}
+Experience: ${experiences.map(e => `${e.title} at ${e.company} (${e.duration}): ${e.desc}`).join(" | ")}
+  `.trim();
+
+  const apiKey = localStorage.getItem("geminiApiKey");
+
+  try {
+    if (apiKey && !useHeuristicsOnly) {
+      await callGeminiAPI(resumeText, apiKey);
+    } else {
+      await runHeuristicReview(resumeText);
+    }
+  } catch (error) {
+    console.error(error);
+    showToast("Error generating review. Using fallback.", "error");
+    runHeuristicReview(resumeText);
+  }
+}
+
+async function runHeuristicReview(text) {
+  // Simulate network delay
+  await new Promise(r => setTimeout(r, 1500));
+  
+  let score = 50;
+  let feedback = [];
+
+  if (summaryInput.value.length > 50) {
+    score += 15;
+    feedback.push("Good professional summary length.");
+  } else {
+    feedback.push("Expand your professional summary to highlight your unique value proposition.");
+  }
+
+  if (skills.length > 5) {
+    score += 15;
+    feedback.push("Strong list of technical/core skills.");
+  } else {
+    feedback.push("Add more relevant skills (aim for at least 6-8 key skills).");
+  }
+
+  if (experiences.length > 0) {
+    score += 20;
+    const allDesc = experiences.map(e => e.desc).join(" ").toLowerCase();
+    const actionVerbs = ['developed', 'led', 'managed', 'created', 'designed', 'increased', 'reduced'];
+    let verbsFound = 0;
+    actionVerbs.forEach(v => { if(allDesc.includes(v)) verbsFound++; });
+    
+    if(verbsFound > 2) {
+      score += 10;
+      feedback.push("Good use of strong action verbs in experience descriptions.");
+    } else {
+      feedback.push("Try using more strong action verbs (e.g., Developed, Led, Designed) in your experience.");
+    }
+  } else {
+    feedback.push("Add your work experience or relevant projects to stand out.");
+  }
+
+  if(educationInput.value.length > 10) {
+    score += -10 + 20; // +10 net
+  }
+
+  // Cap score
+  if(score > 98) score = 98;
+  
+  displayAIResult(score, feedback);
+}
+
+async function callGeminiAPI(text, apiKey) {
+  const prompt = `You are an expert ATS recruiter. Rate this resume out of 100 based on standard industry practices. 
+Return your response in STRICT JSON format: {"score": 85, "feedback": ["point 1", "point 2", "point 3"]}.
+Resume text: ${text}`;
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("API call failed");
+  }
+
+  const data = await response.json();
+  const rawText = data.candidates[0].content.parts[0].text;
+  
+  // Extract JSON
+  const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    const result = JSON.parse(jsonMatch[0]);
+    displayAIResult(result.score, result.feedback);
+  } else {
+    throw new Error("Failed to parse JSON");
+  }
+}
+
+function displayAIResult(score, feedbackList) {
+  showSection(aiResultSection);
+  
+  const scoreEl = document.getElementById("ai-score-value");
+  const dialEl = document.querySelector(".score-dial");
+  const listEl = document.getElementById("ai-feedback-list");
+  
+  // Animate counter
+  let currentScore = 0;
+  const interval = setInterval(() => {
+    currentScore += 2;
+    if (currentScore >= score) {
+      currentScore = score;
+      clearInterval(interval);
+    }
+    scoreEl.textContent = currentScore;
+    dialEl.style.setProperty('--score-pct', currentScore);
+    
+    if (currentScore > 75) dialEl.style.background = `conic-gradient(var(--success) calc(${currentScore} * 1%), #e2e8f0 0)`;
+    else if (currentScore > 50) dialEl.style.background = `conic-gradient(var(--warning) calc(${currentScore} * 1%), #e2e8f0 0)`;
+    else dialEl.style.background = `conic-gradient(var(--danger) calc(${currentScore} * 1%), #e2e8f0 0)`;
+    
+  }, 20);
+
+  listEl.innerHTML = '';
+  feedbackList.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    listEl.appendChild(li);
+  });
+}

@@ -101,7 +101,10 @@
         <button id="save-btn" class="btn-primary">
           <i class="fas fa-save"></i> Save Resume
         </button>
-        <button id="download-btn" class="btn-gradient">
+        <button id="ai-review-btn" class="btn-primary ai-sparkle">
+          <i class="fas fa-wand-magic-sparkles"></i> AI Review
+        </button>
+        <button id="download-btn" class="btn-gradient" style="grid-column: span 2;">
           <i class="fas fa-file-pdf"></i> Download PDF
         </button>
       </div>
@@ -188,6 +191,50 @@
     </section>
 
   </main>
+
+  <!-- AI Review Modal -->
+  <div id="ai-modal" class="modal hidden">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h3><i class="fas fa-robot"></i> AI Resume Review</h3>
+        <button id="close-ai-modal" class="close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      
+      <div id="ai-setup-section" class="ai-section hidden">
+        <p>To use the advanced Gemini AI reviewer, please provide your Google Gemini API Key. It will be stored locally in your browser.</p>
+        <div class="form-group" style="margin-top: 15px;">
+          <label for="gemini-api-key"><i class="fas fa-key"></i> Gemini API Key</label>
+          <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
+        </div>
+        <button id="save-api-key" class="btn-primary btn-full"><i class="fas fa-save"></i> Save Key & Continue</button>
+        <p style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary);">Don't have an API key? <a href="#" id="use-heuristic-fallback" style="color: var(--primary);">Use basic heuristics instead.</a></p>
+      </div>
+
+      <div id="ai-loading-section" class="ai-section hidden">
+        <div class="loader-container">
+          <div class="ai-scanner"></div>
+          <p>Analyzing your professional profile...</p>
+        </div>
+      </div>
+
+      <div id="ai-result-section" class="ai-section hidden">
+        <div class="score-container">
+          <div class="score-dial">
+            <span id="ai-score-value">0</span><span style="font-size: 1rem;">/100</span>
+          </div>
+          <p id="ai-score-text">Rating</p>
+        </div>
+        
+        <div class="feedback-container">
+          <h4><i class="fas fa-lightbulb"></i> Recommendations</h4>
+          <ul id="ai-feedback-list">
+            <!-- Feedback items will be injected here -->
+          </ul>
+        </div>
+        <button id="ai-settings-btn" class="btn-secondary btn-full" style="margin-top: 20px;"><i class="fas fa-cog"></i> Update API Key</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="app-footer">
     <p>Built with <i class="fas fa-heart"></i> for job seekers everywhere</p>

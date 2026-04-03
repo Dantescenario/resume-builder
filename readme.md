@@ -1,72 +1,42 @@
-LIVE LINK: https://sweet-squirrel-84c68c.netlify.app/
+# 🚀 Next.js AI Resume Builder
 
+A modern, highly interactive React application that allows users to seamlessly build, customize, and generate professional resumes with zero cost. Built with Next.js 16 and a suite of powerful front-end tools.
 
-# Modern Resume Builder
+## ✨ Features
 
-A premium, feature-rich web application to build professional resumes in minutes. Featuring a glassmorphism UI, real-time preview, and multiple professional templates.
+- **Dynamic Live Preview:** See your resume update instantly as you type. Real-time DOM interaction leveraging React hooks.
+- **Advanced PDF Generation:** Takes a 2x-scaled high-res snapshot via `html2canvas` and maps it perfectly into `jsPDF` at A4 millimeters, guaranteeing an edge-to-edge, single-page professional export without formatting loss.
+- **Link Preservation Engine:** Intelligently calculates HTML layout coordinates and overlays transparent clickable PDF hyperlinks onto the rasterized output. 
+- **Native Drag & Drop:** Easily re-order Work Experience and Project sections natively, supported by React state synchronization.
+- **Custom Theming:** Use CSS variables seamlessly integrated into React inline styles to dynamically change the accent colors of both the UI and the exported PDF.
+- **JSON Data Portability:** Full data-ownership — export your resume raw data as a JSON file, and import it later to pick up right where you left off.
+- **Fallback-Proof AI Reviews:** Built-in Next.js Route Handlers (`/api/review`) supporting Gemini AI, equipped with graceful fallbacks if API keys are absent.
 
-![Resume Builder Preview](Screenshot.png)
+## 🛠️ Tech Stack
 
-## ✨ New Features
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** CSS variables + Glassmorphism UI
+- **PDF Generation:** `jsPDF` & `html2canvas`
+- **Generative AI:** Google Gemini SDK
 
-- **Modern Glassmorphism UI**: Beautiful, responsive interface with animated gradient backgrounds and glass-effect cards.
-- **4 Professional Templates**:
-  - **Classic**: Formal serif layout for traditional industries.
-  - **Modern**: Clean sans-serif with colored sidebars for tech/creative roles.
-  - **Minimal**: Elegant whitespace-focused design.
-  - **Creative**: Bold colors and unique layouts for artistic portfolios.
-- **Smart PDF Generation**: Downloaded PDFs automatically match your selected template's style, fonts, and colors.
-- **Live Preview**: Real-time updates as you type.
-- **Interactive Form**:
-  - **Skill Tags**: Add/remove skills with ease.
-  - **Experience Management**: Add detailed work history.
-  - **Toast Notifications**: Friendly success/error messages.
-- **Auto-Save**: creative use of LocalStorage preserves your work between visits.
+## 🚀 Quick Start
 
-## 🚀 How to Use
-
-1. **Clone & Run**:
+1. Clone the repository
+2. Install dependencies:
    ```bash
-   git clone <repository-url>
-   cd resume-builder
-   npx serve .
+   npm install
    ```
-   Or simply open `index.html` in your browser.
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000)
 
-2. **Create Your Resume**:
-   - Fill in your personal details, summary, and education.
-   - Add skills using the tag input (press Enter or click +).
-   - Add work experience entries.
+## 💡 Engineering Highlights
 
-3. **Choose Your Style**:
-   - Click the template thumbnails above the preview to switch styles instantly.
-   - Choose from Classic, Modern, Minimal, or Creative.
+The PDF generation solves strict browser-print limitations by rasterizing the HTML container into a canvas, measuring scaling ratios, and writing the element forcefully into a strictly dimensioned 210mm `jsPDF` canvas. 
 
-4. **Download**:
-   - Click **Save Resume** to store content locally.
-   - Click **Download PDF** to get your print-ready resume.
+Because `html2canvas` turns elements into flat images (which disables hyperlinks), this app includes a custom engine that calculates relative UI node coordinates (`<a>` tags) and dynamically restores them as clickable, transparent overlay boxes directly over the final PDF output.
 
-## 🛠️ Technology Stack
-
-- **HTML5**: Semantic and accessible structure.
-- **CSS3**: Variables, Flexbox/Grid, Glassmorphism, Animations.
-- **JavaScript (ES6+)**: Template logic, DOM manipulation, LocalStorage.
-- **jsPDF**: Client-side PDF generation.
-- **Font Awesome**: Iconography.
-- **Google Fonts**: Inter & Crimson Pro.
-
-## 🎨 Customization
-
-To modify the color schemes, edit the CSS variables in `style.css`:
-
-```css
-:root {
-  --primary: #667eea;
-  --accent: #06b6d4;
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-```
-
-## 📄 License
-
-MIT License - feel free to use and modify for your own projects!
+---
+*Built and engineered to showcase advanced front-end state formatting and problem-solving.*
