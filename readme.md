@@ -1,14 +1,17 @@
-# 🚀 Next.js AI Resume Builder
+# 🚀 Next.js AI Resume Builder PRO
 
-A modern, highly interactive React application that allows users to seamlessly build, customize, and generate professional resumes with zero cost. Built with Next.js 16 and a suite of powerful front-end tools.
+A modern, highly interactive React application that allows users to seamlessly build, customize, and generate professional resumes. Built with Next.js 16, Google Gemini AI, and a suite of powerful front-end tools.
 
 ## ✨ Features
 
 - **Dynamic Live Preview:** See your resume update instantly as you type. Real-time DOM interaction leveraging React hooks.
-- **Advanced PDF Generation:** Takes a 2x-scaled high-res snapshot via `html2canvas` and maps it perfectly into `jsPDF` at A4 millimeters, guaranteeing an edge-to-edge, single-page professional export without formatting loss.
-- **Link Preservation Engine:** Intelligently calculates HTML layout coordinates and overlays transparent clickable PDF hyperlinks onto the rasterized output. 
-- **Native Drag & Drop:** Easily re-order Work Experience and Project sections natively, supported by React state synchronization.
-- **Custom Theming:** Use CSS variables seamlessly integrated into React inline styles to dynamically change the accent colors of both the UI and the exported PDF.
+- **AI Bullet Enhancer (New):** Click the "AI Magic Wand" on any experience bullet point. The backend Gemini AI will automatically rewrite and enhance your text to sound more professional and results-oriented.
+- **Multi-Profile Management (New):** Save multiple variants of your resume to local storage and switch between them instantly using the top profile switcher.
+- **Advanced PDF Generation:** Takes a high-res snapshot via `html2canvas` and maps it perfectly into `jsPDF` at A4 size without formatting loss.
+- **Link Preservation Engine:** Intelligently calculates layout coordinates and overlays transparent clickable PDF hyperlinks. Now supports **LinkedIn, GitHub, and Portfolio integration**.
+- **Native Drag & Drop:** Easily re-order your Skills, Work Experience, and Project sections natively using HTML5 drag-and-drop APIs.
+- **Rich Text Formatting:** Pseudo-markdown support allows you to easily inject `**bold**` and `*italic*` text dynamically into the PDF renderer.
+- **Dark Mode & Glassmorphism:** Sleek UI with a real-time dark mode toggle, hover micro-animations, and custom built-in typography (`Inter` & `Outfit`).
 - **JSON Data Portability:** Full data-ownership — export your resume raw data as a JSON file, and import it later to pick up right where you left off.
 - **Fallback-Proof AI Reviews:** Built-in Next.js Route Handlers (`/api/review`) supporting Gemini AI, equipped with graceful fallbacks if API keys are absent.
 

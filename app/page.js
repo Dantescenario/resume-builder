@@ -5,9 +5,17 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 export default function Home() {
+  const [profileId, setProfileId] = useState("default");
+  const [profiles, setProfiles] = useState([{ id: "default", name: "Default Profile" }]);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  
+  const [linkedin, setLinkedin] = useState("");
+  const [github, setGithub] = useState("");
+  const [portfolio, setPortfolio] = useState("");
+
   const [summary, setSummary] = useState("");
   const [education, setEducation] = useState("");
   
@@ -27,6 +35,8 @@ export default function Home() {
   
   const [template, setTemplate] = useState("classic");
   const [themeColor, setThemeColor] = useState("#667eea");
+  
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Drag and file input refs
   const dragItem = useRef(null);
@@ -37,27 +47,61 @@ export default function Home() {
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
+  const [enhancingIndex, setEnhancingIndex] = useState(null);
+
+  // Format Text helper for preview (bold and italic support)
+  const formatText = (text) => {
+    if (!text) return { __html: "" };
+    // replace **bold** and *italic*
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // return formatted lines as continuous text with <br/>
+    return { __html: formatted.replace(/\n/g, '<br/>') };
+  };
+
+  const insertFormatting = (setter, getter, prefix, suffix = prefix) => {
+    setter(getter + prefix + "text" + suffix);
+  };
+
+  const loadProfileData = (savedData, pId) => {
+    const data = savedData[pId];
+    if (data) {
+      if (data.name !== undefined) setName(data.name);
+      if (data.email !== undefined) setEmail(data.email);
+      if (data.phone !== undefined) setPhone(data.phone);
+      if (data.linkedin !== undefined) setLinkedin(data.linkedin);
+      if (data.github !== undefined) setGithub(data.github);
+      if (data.portfolio !== undefined) setPortfolio(data.portfolio);
+      if (data.summary !== undefined) setSummary(data.summary);
+      if (data.education !== undefined) setEducation(data.education);
+      if (data.skills !== undefined) setSkills(data.skills);
+      if (data.experiences !== undefined) setExperiences(data.experiences);
+      if (data.projects !== undefined) setProjects(data.projects);
+      if (data.template !== undefined) setTemplate(data.template);
+      if (data.themeColor !== undefined) setThemeColor(data.themeColor);
+    }
+  };
 
   useEffect(() => {
-    const saved = localStorage.getItem("resumeData");
+    const saved = localStorage.getItem("resumeProfilesMap");
+    const mode = localStorage.getItem("resumeDarkMode");
+    if (mode === "true") setIsDarkMode(true);
+
     if (saved) {
       try {
-        const data = JSON.parse(saved);
-        if (data.name) setName(data.name);
-        if (data.email) setEmail(data.email);
-        if (data.phone) setPhone(data.phone);
-        if (data.summary) setSummary(data.summary);
-        if (data.education) setEducation(data.education);
-        if (data.skills) setSkills(data.skills);
-        if (data.experiences) setExperiences(data.experiences);
-        if (data.projects) setProjects(data.projects);
-        if (data.template) setTemplate(data.template);
-        if (data.themeColor) setThemeColor(data.themeColor);
+        const parsed = JSON.parse(saved);
+        setProfiles(parsed.profilesList || [{ id: "default", name: "Default Profile" }]);
+        loadProfileData(parsed.map || {}, "default");
       } catch (e) {
         console.error(e);
       }
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
+    localStorage.setItem("resumeDarkMode", isDarkMode);
+  }, [isDarkMode]);
 
   const showToast = (msg, type = "success") => {
     const container = document.getElementById("toast-container");
@@ -73,20 +117,52 @@ export default function Home() {
   };
 
   const saveResume = () => {
-    localStorage.setItem(
-      "resumeData",
-      JSON.stringify({ name, email, phone, summary, education, skills, experiences, projects, template, themeColor })
-    );
+    const saved = localStorage.getItem("resumeProfilesMap");
+    let parsed = { map: {}, profilesList: profiles };
+    if (saved) {
+      try { parsed = JSON.parse(saved); } catch (e) { }
+    }
+    
+    parsed.profilesList = profiles;
+    parsed.map[profileId] = { name, email, phone, linkedin, github, portfolio, summary, education, skills, experiences, projects, template, themeColor };
+    
+    localStorage.setItem("resumeProfilesMap", JSON.stringify(parsed));
     showToast("Resume saved successfully!");
   };
 
+  const createNewProfile = () => {
+    const newId = Date.now().toString();
+    const newName = prompt("Enter profile name:");
+    if (!newName) return;
+    setProfiles([...profiles, { id: newId, name: newName }]);
+    setProfileId(newId);
+    
+    // Clear forms
+    setName(""); setEmail(""); setPhone(""); setLinkedin(""); setGithub(""); setPortfolio("");
+    setSummary(""); setEducation(""); setSkills([]); setExperiences([]); setProjects([]);
+    
+    showToast("New profile created!");
+  };
+
+  const switchProfile = (e) => {
+    const selectedId = e.target.value;
+    setProfileId(selectedId);
+    const saved = localStorage.getItem("resumeProfilesMap");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        loadProfileData(parsed.map || {}, selectedId);
+      } catch (err) {}
+    }
+  };
+
   const exportJSON = () => {
-    const data = JSON.stringify({ name, email, phone, summary, education, skills, experiences, projects, template, themeColor }, null, 2);
+    const data = JSON.stringify({ name, email, phone, linkedin, github, portfolio, summary, education, skills, experiences, projects, template, themeColor }, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "resume-export.json";
+    a.download = `resume-${name || 'export'}.json`;
     a.click();
     showToast("Exported JSON Data");
   };
@@ -101,6 +177,9 @@ export default function Home() {
         if (data.name) setName(data.name);
         if (data.email) setEmail(data.email);
         if (data.phone) setPhone(data.phone);
+        if (data.linkedin) setLinkedin(data.linkedin);
+        if (data.github) setGithub(data.github);
+        if (data.portfolio) setPortfolio(data.portfolio);
         if (data.summary) setSummary(data.summary);
         if (data.education) setEducation(data.education);
         if (data.skills) setSkills(data.skills);
@@ -121,12 +200,15 @@ export default function Home() {
     setName("Sarah Jenkins");
     setEmail("sarah.j@example.com");
     setPhone("+1 234 567 8900");
-    setSummary("Dynamic Full-Stack Developer with 5+ years of experience designing scalable web apps. Passionate about UI/UX, continuous integration, and improving app performance.");
+    setLinkedin("linkedin.com/in/sarahj");
+    setGithub("github.com/sarahj");
+    setPortfolio("sarahjenkins.dev");
+    setSummary("**Dynamic Full-Stack Developer** with 5+ years of experience designing scalable web apps. Passionate about UI/UX, continuous integration, and improving app performance.");
     setEducation("B.S. Computer Science\nUniversity of Tech (2018 - 2022)\nGPA: 3.8/4.0");
     setSkills(["JavaScript", "React", "Next.js", "Python", "TailwindCSS", "SQL"]);
     setExperiences([
-      { title: "Senior Frontend Engineer", company: "TechNova", duration: "Jan 2023 - Present", desc: "Spearheaded the migration of a legacy dashboard to Next.js, improving page load speeds by 50%.\nMentored junior developers." },
-      { title: "Software Developer", company: "Creative Web Agency", duration: "Jun 2022 - Dec 2022", desc: "Built interactive REST APIs with Express and MongoDB.\nCollaborated with designers to deliver pixel-perfect components." }
+      { title: "Senior Frontend Engineer", company: "TechNova", duration: "Jan 2023 - Present", desc: "* Spearheaded the migration of a legacy dashboard to Next.js, improving page load speeds by 50%.\n* Mentored junior developers." },
+      { title: "Software Developer", company: "Creative Web Agency", duration: "Jun 2022 - Dec 2022", desc: "* Built interactive REST APIs with Express and MongoDB.\n* Collaborated with designers to deliver pixel-perfect components." }
     ]);
     setProjects([
       { title: "E-Commerce CMS", link: "https://github.com/sarah/eco-cms", desc: "A headless CMS built with Node.js and React." },
@@ -168,10 +250,7 @@ export default function Home() {
       ...experiences,
       { title: expTitle.trim(), company: expCompany.trim(), duration: expDuration.trim(), desc: expDesc.trim() },
     ]);
-    setExpTitle("");
-    setExpCompany("");
-    setExpDuration("");
-    setExpDesc("");
+    setExpTitle(""); setExpCompany(""); setExpDuration(""); setExpDesc("");
     showToast("Experience added!");
   };
 
@@ -187,9 +266,7 @@ export default function Home() {
       ...projects,
       { title: projTitle.trim(), link: projLink.trim(), desc: projDesc.trim() },
     ]);
-    setProjTitle("");
-    setProjLink("");
-    setProjDesc("");
+    setProjTitle(""); setProjLink(""); setProjDesc("");
     showToast("Project added!");
   };
 
@@ -197,11 +274,40 @@ export default function Home() {
     setProjects(projects.filter((_, i) => i !== index));
   };
 
+  const enhanceExperienceDesc = async (index) => {
+    const textToEnhance = experiences[index].desc;
+    if (!textToEnhance?.trim()) return showToast("Add description first to enhance it", "error");
+    
+    setEnhancingIndex(index);
+    try {
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "enhance", textToEnhance }),
+      });
+      if (!res.ok) throw new Error("Backend API failed");
+      const data = await res.json();
+      
+      const updatedExp = [...experiences];
+      updatedExp[index].desc = data.enhancedText;
+      setExperiences(updatedExp);
+      showToast("Enhanced with AI!");
+    } catch (err) {
+      console.error(err);
+      showToast("AI enhancement failed", "error");
+    } finally {
+      setEnhancingIndex(null);
+    }
+  };
+
   const downloadPDF = async () => {
+    if (!name?.trim()) {
+      showToast("Name is required to generate a PDF", "error");
+      return;
+    }
     const element = document.getElementById("resume-preview");
     if (!element) return;
     
-    // Temporarily adjust styles so PDF borders/shadows are perfect
     const originalBorder = element.style.border;
     const originalShadow = element.style.boxShadow;
     const originalHeight = element.style.minHeight;
@@ -214,7 +320,6 @@ export default function Home() {
       const canvas = await html2canvas(element, { scale: 2, useCORS: true });
       const imgData = canvas.toDataURL("image/png");
       
-      // A4 width is strictly 210 millimeters
       const pdfWidthMm = 210;
       const pdfHeightMm = (canvas.height * pdfWidthMm) / canvas.width;
 
@@ -226,7 +331,6 @@ export default function Home() {
 
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidthMm, pdfHeightMm);
 
-      // Re-map HTML hyperlinks to clickable areas in the PDF
       const containerRect = element.getBoundingClientRect();
       const scale = pdfWidthMm / containerRect.width;
       const links = element.querySelectorAll("a");
@@ -237,8 +341,6 @@ export default function Home() {
         const mmY = (rect.top - containerRect.top) * scale;
         const mmW = rect.width * scale;
         const mmH = rect.height * scale;
-        
-        // Add transparent clickable box over the link
         pdf.link(mmX, mmY, mmW, mmH, { url: link.href });
       });
 
@@ -274,7 +376,7 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
       const res = await fetch("/api/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumeText }),
+        body: JSON.stringify({ resumeText, action: "review" }),
       });
       if (!res.ok) throw new Error("Backend API failed");
       const data = await res.json();
@@ -282,7 +384,6 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
     } catch (err) {
       console.error(err);
       showToast("Real AI failed, falling back to heuristics...", "error");
-      // Fallback
       setTimeout(() => {
         setAiResult({
           score: 65,
@@ -299,11 +400,20 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
       <div id="toast-container"></div>
       
       <header className="app-header">
+        <div className="header-controls" style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '10px' }}>
+          <select value={profileId} onChange={switchProfile} className="profile-select" style={{ padding: '5px', borderRadius: '5px' }}>
+            {profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <button onClick={createNewProfile} className="btn-secondary" style={{ padding: '5px 10px', fontSize: '0.8rem' }}>+ New</button>
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="btn-secondary" style={{ padding: '5px 10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'}`}></i> {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        </div>
         <div className="logo">
           <i className="fas fa-file-alt"></i>
-          <span>Resume Builder (Next.js)</span>
+          <span>Resume Builder PRO</span>
         </div>
-        <p className="tagline">Secure full-stack version</p>
+        <p className="tagline">Now with AI superpowers & rich text</p>
       </header>
 
       <main className="container">
@@ -329,9 +439,35 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             </div>
           </div>
 
+          <div className="section-header" style={{ marginTop: '20px' }}>
+            <i className="fas fa-link"></i>
+            <h3>Social Links</h3>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label><i className="fab fa-linkedin"></i> LinkedIn</label>
+              <input type="text" value={linkedin} onChange={e => setLinkedin(e.target.value)} placeholder="linkedin.com/in/johndoe" />
+            </div>
+            <div className="form-group">
+              <label><i className="fab fa-github"></i> GitHub</label>
+              <input type="text" value={github} onChange={e => setGithub(e.target.value)} placeholder="github.com/johndoe" />
+            </div>
+          </div>
           <div className="form-group">
-            <label><i className="fas fa-align-left"></i> Summary</label>
-            <textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="Write a summary..."></textarea>
+            <label><i className="fas fa-globe"></i> Portfolio / Website</label>
+            <input type="text" value={portfolio} onChange={e => setPortfolio(e.target.value)} placeholder="johndoe.com" />
+          </div>
+
+          <div className="form-group">
+            <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span><i className="fas fa-align-left"></i> Summary</span>
+              <div className="rich-toolbar">
+                <button type="button" onClick={() => insertFormatting(setSummary, summary, "**")} title="Bold"><b>B</b></button>
+                <button type="button" onClick={() => insertFormatting(setSummary, summary, "*")} title="Italic"><i>I</i></button>
+              </div>
+            </label>
+            <textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="Write a summary (use **bold** and *italic*)..."></textarea>
           </div>
 
           <div className="form-group">
@@ -342,7 +478,15 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             </form>
             <div className="skills-tags">
               {skills.map((s, i) => (
-                <span key={i} className="skill-tag">
+                <span 
+                  key={i} 
+                  className="skill-tag"
+                  draggable
+                  onDragStart={() => dragItem.current = i}
+                  onDragEnter={() => dragOverItem.current = i}
+                  onDragEnd={() => handleSort(skills, setSkills)}
+                  style={{ cursor: 'grab' }}
+                >
                   {s} <button className="remove-skill" onClick={() => removeSkill(i)}><i className="fas fa-times"></i></button>
                 </span>
               ))}
@@ -362,18 +506,23 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             {experiences.map((exp, i) => (
               <div 
                 key={i} 
-                className="experience-item" 
+                className="experience-item ui-list-item" 
                 draggable
                 onDragStart={() => dragItem.current = i}
                 onDragEnter={() => dragOverItem.current = i}
                 onDragEnd={() => handleSort(experiences, setExperiences)}
-                style={{marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.5)', borderRadius: '8px', cursor: 'grab'}}
               >
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                   <strong>{exp.title} at {exp.company}</strong>
-                  <button onClick={() => removeExperience(i)} type="button" style={{background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0}}><i className="fas fa-trash"></i></button>
+                  <div style={{display: 'flex', gap: '10px'}}>
+                    <button onClick={() => enhanceExperienceDesc(i)} type="button" className="action-icon ai-icon" title="Enhance with AI">
+                      {enhancingIndex === i ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-wand-magic-sparkles"></i>}
+                    </button>
+                    <button onClick={() => removeExperience(i)} type="button" className="action-icon danger-icon"><i className="fas fa-trash"></i></button>
+                  </div>
                 </div>
                 <p style={{fontSize: '0.875rem', marginTop: '4px', color: '#64748b'}}>{exp.duration}</p>
+                <div style={{fontSize: '0.875rem', marginTop: '4px'}} dangerouslySetInnerHTML={formatText(exp.desc)}></div>
               </div>
             ))}
             <div className="form-group">
@@ -388,7 +537,14 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
               </div>
             </div>
             <div className="form-group">
-              <textarea value={expDesc} onChange={e => setExpDesc(e.target.value)} placeholder="Description..."></textarea>
+              <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{visibility: 'hidden'}}>Desc</span>
+                <div className="rich-toolbar">
+                  <button type="button" onClick={() => insertFormatting(setExpDesc, expDesc, "**")} title="Bold"><b>B</b></button>
+                  <button type="button" onClick={() => insertFormatting(setExpDesc, expDesc, "*")} title="Italic"><i>I</i></button>
+                </div>
+              </label>
+              <textarea value={expDesc} onChange={e => setExpDesc(e.target.value)} placeholder="Description (use **bold** and *italic*)..."></textarea>
             </div>
             <button onClick={addExperience} className="btn-secondary btn-full"><i className="fas fa-plus-circle"></i> Add Experience</button>
           </div>
@@ -401,16 +557,15 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             {projects.map((proj, i) => (
               <div 
                 key={i} 
-                className="experience-item" 
+                className="experience-item ui-list-item" 
                 draggable
                 onDragStart={() => dragItem.current = i}
                 onDragEnter={() => dragOverItem.current = i}
                 onDragEnd={() => handleSort(projects, setProjects)}
-                style={{marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.5)', borderRadius: '8px', cursor: 'grab'}}
               >
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                   <strong>{proj.title}</strong>
-                  <button onClick={() => removeProject(i)} type="button" style={{background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0}}><i className="fas fa-trash"></i></button>
+                  <button onClick={() => removeProject(i)} type="button" className="action-icon danger-icon"><i className="fas fa-trash"></i></button>
                 </div>
               </div>
             ))}
@@ -434,7 +589,7 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             <button onClick={exportJSON} className="btn-secondary"><i className="fas fa-download"></i> Export JSON</button>
             <button onClick={() => fileInputRef.current.click()} className="btn-secondary"><i className="fas fa-upload"></i> Import JSON</button>
             <input type="file" ref={fileInputRef} onChange={importJSON} style={{display: 'none'}} accept=".json" />
-            <button onClick={handleAIReview} className="btn-primary ai-sparkle" style={{ gridColumn: 'span 2' }}><i className="fas fa-wand-magic-sparkles"></i> AI Review</button>
+            <button onClick={handleAIReview} className="btn-primary ai-sparkle" style={{ gridColumn: 'span 2' }}><i className="fas fa-wand-magic-sparkles"></i> Overall AI Review</button>
             <button onClick={downloadPDF} className="btn-gradient" style={{ gridColumn: 'span 2' }}><i className="fas fa-file-pdf"></i> Download PDF</button>
           </div>
         </section>
@@ -473,10 +628,15 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
               <p className="contact-info">
                 <span>{email || "email@example.com"}</span> <span className="separator">|</span> <span>{phone || "+91 XXXXXXXXXX"}</span>
               </p>
+              <p className="contact-socials">
+                {linkedin && <a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin"></i> {linkedin}</a>}
+                {github && <a href={`https://${github}`} target="_blank" rel="noopener noreferrer"><i className="fab fa-github"></i> {github}</a>}
+                {portfolio && <a href={`https://${portfolio}`} target="_blank" rel="noopener noreferrer"><i className="fas fa-globe"></i> {portfolio}</a>}
+              </p>
             </div>
             <div className="resume-section">
               <h3>Summary</h3>
-              <p>{summary || "Your summary details..."}</p>
+              <p dangerouslySetInnerHTML={formatText(summary || "Your summary details...")}></p>
             </div>
             <div className="resume-section">
               <h3>Skills</h3>
@@ -489,7 +649,7 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
                   <div key={i} className="experience-item">
                     <strong>{exp.title}</strong> – {exp.company}<br />
                     <em>{exp.duration}</em>
-                    <p>{exp.desc}</p>
+                    <p dangerouslySetInnerHTML={formatText(exp.desc)}></p>
                   </div>
                 ))}
               </div>
