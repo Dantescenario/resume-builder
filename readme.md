@@ -1,3 +1,6 @@
+
+LIVE LINK : https://resume-builder-black-eight.vercel.app/
+
 # 🚀 Next.js AI Resume Builder PRO
 
 A modern, highly interactive React application that allows users to seamlessly build, customize, and generate professional resumes. Built with Next.js 16, Google Gemini AI, and a suite of powerful front-end tools.
