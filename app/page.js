@@ -698,7 +698,6 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
 
       <footer className="app-footer">
         <p>
-          Made with <i className="fas fa-heart"></i> by{" "}
           <a 
             href="https://my-portfolio-7rvu.vercel.app/" 
             target="_blank" 
