@@ -654,6 +654,19 @@ button {
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
+.footer-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition-fast), text-shadow var(--transition-fast);
+  margin-left: 4px;
+}
+
+.footer-link:hover {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+}
+
 @keyframes heartbeat {
 
   0%,

@@ -696,6 +696,20 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
         </section>
       </main>
 
+      <footer className="app-footer">
+        <p>
+          Made with <i className="fas fa-heart"></i> by{" "}
+          <a 
+            href="https://my-portfolio-7rvu.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="footer-link"
+          >
+            RISHABH BHARDWAJ
+          </a>
+        </p>
+      </footer>
+
       {/* AI Modal */}
       <div id="ai-modal" className={`modal ${!showAiModal ? 'hidden' : ''}`}>
         <div className="modal-content glass-card">
