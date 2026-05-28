@@ -372,24 +372,45 @@ Experience: ${experiences.map(e => `${e.title} at ${e.company} (${e.duration}): 
 Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
     `.trim();
 
+    const resumeData = {
+      name,
+      email,
+      phone,
+      linkedin,
+      github,
+      portfolio,
+      summary,
+      education,
+      skills,
+      experiences,
+      projects
+    };
+
     try {
       const res = await fetch("/api/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resumeText, action: "review" }),
+        body: JSON.stringify({ resumeText, resumeData, action: "review" }),
       });
       if (!res.ok) throw new Error("Backend API failed");
       const data = await res.json();
       setAiResult(data);
     } catch (err) {
       console.error(err);
-      showToast("Real AI failed, falling back to heuristics...", "error");
-      setTimeout(() => {
-        setAiResult({
-          score: 65,
-          feedback: ["Fallback active: Check API key in Node env.", "Add more action verbs.", "Aim for 6-8 skills."]
-        });
-      }, 1500);
+      showToast("AI Review connection failed. Running local review...", "error");
+      
+      // Basic client-side fallback if the API is completely unreachable
+      const feedback = [];
+      let score = 100;
+      if (!email) { feedback.push("Add an email address to your contact details."); score -= 10; }
+      if (!phone) { feedback.push("Add a phone number to your contact details."); score -= 10; }
+      if (!summary || summary.length < 20) { feedback.push("Write a professional summary (at least 20 chars)."); score -= 15; }
+      if (skills.length === 0) { feedback.push("Add your technical skills."); score -= 15; }
+      if (experiences.length === 0) { feedback.push("Add your work experience."); score -= 20; }
+      setAiResult({
+        score: Math.max(30, score),
+        feedback: feedback.length ? feedback : ["Resume structure looks good. Ensure you double-check your API endpoint connectivity."]
+      });
     } finally {
       setAiLoading(false);
     }
@@ -692,7 +713,13 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
             ) : aiResult ? (
               <>
                 <div className="score-container">
-                  <div className="score-dial" style={{'--score-pct': aiResult.score}}>
+                  <div 
+                    className="score-dial" 
+                    style={{
+                      '--score-pct': aiResult.score,
+                      '--score-color': aiResult.score >= 80 ? 'var(--success)' : aiResult.score >= 60 ? 'var(--warning)' : 'var(--danger)'
+                    }}
+                  >
                     <span>{aiResult.score}</span><span style={{fontSize: '1rem'}}>/100</span>
                   </div>
                 </div>
