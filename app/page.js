@@ -59,6 +59,28 @@ export default function Home() {
     return { __html: formatted.replace(/\n/g, '<br/>') };
   };
 
+  const normalizeUrl = (value, fallbackProtocol = "https://") => {
+    if (!value || typeof value !== "string") return "";
+
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+
+    let normalized = trimmed.replace(/\s+/g, "");
+    if (!normalized) return "";
+
+    if (/^(mailto|tel):/i.test(normalized)) return normalized;
+
+    normalized = normalized.replace(/^https?:?\/\//i, (match) => {
+      return match.toLowerCase().startsWith("https") ? "https://" : "http://";
+    });
+
+    if (!/^https?:\/\//i.test(normalized)) {
+      normalized = `${fallbackProtocol}${normalized}`;
+    }
+
+    return normalized;
+  };
+
   const insertFormatting = (setter, getter, prefix, suffix = prefix) => {
     setter(getter + prefix + "text" + suffix);
   };
@@ -650,9 +672,9 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
                 <span>{email || "email@example.com"}</span> <span className="separator">|</span> <span>{phone || "+91 XXXXXXXXXX"}</span>
               </p>
               <p className="contact-socials">
-                {linkedin && <a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin"></i> {linkedin}</a>}
-                {github && <a href={`https://${github}`} target="_blank" rel="noopener noreferrer"><i className="fab fa-github"></i> {github}</a>}
-                {portfolio && <a href={`https://${portfolio}`} target="_blank" rel="noopener noreferrer"><i className="fas fa-globe"></i> {portfolio}</a>}
+                {linkedin && <a href={normalizeUrl(linkedin)} target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin"></i> {linkedin}</a>}
+                {github && <a href={normalizeUrl(github)} target="_blank" rel="noopener noreferrer"><i className="fab fa-github"></i> {github}</a>}
+                {portfolio && <a href={normalizeUrl(portfolio)} target="_blank" rel="noopener noreferrer"><i className="fas fa-globe"></i> {portfolio}</a>}
               </p>
             </div>
             <div className="resume-section">
@@ -681,7 +703,7 @@ Projects: ${projects.map(p => `${p.title}: ${p.desc}`).join(" | ")}
                 <div>
                   {projects.map((proj, i) => (
                     <div key={i} className="experience-item">
-                      <strong>{proj.title}</strong> {proj.link && <a href={proj.link} target="_blank" rel="noopener noreferrer" style={{color: '#3b82f6', textDecoration: 'none', marginLeft: '5px'}}><i className="fas fa-external-link-alt" style={{fontSize: '0.8em'}}></i></a>}
+                      <strong>{proj.title}</strong> {proj.link && <a href={normalizeUrl(proj.link)} target="_blank" rel="noopener noreferrer" style={{color: '#3b82f6', textDecoration: 'none', marginLeft: '5px'}}><i className="fas fa-external-link-alt" style={{fontSize: '0.8em'}}></i></a>}
                       <p>{proj.desc}</p>
                     </div>
                   ))}
